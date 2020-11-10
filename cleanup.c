@@ -19,3 +19,9 @@ void cleanup()
         ch = getchar();
     }
 }
+
+int main()
+{
+    cleanup();
+    return 0;
+}
