@@ -6,10 +6,10 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
 {
     int index = 0;
     FILE *fp, *newfp;
-    char *names[2] = {"result1.txt", "result2.txt"};
+    char *names[100] = {"result1.txt", "result2.txt"};
     for (int i = 1; i < argc; i++)
     {
-        printf("%s\n", argv[i]);
+        
         fp = fopen(argv[i], "r");
         newfp = fopen(names[index], "a");
         cleanup(fp, newfp);
@@ -17,7 +17,8 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
         fclose(newfp);
         index++;
     }
+
     tfidf(names);
-    
+
     return 0;
 }
