@@ -1,24 +1,5 @@
 #include <stdio.h>
-#include <ctype.h>
-
-//to lowercase everything && replace punctuation to ' '
-//Harry    last edition:11/10
-void cleanup(FILE *fp, FILE *newfp)   /// the thing I think should be perserved in this c file
-{
-    char ch = getc(fp);
-    while (ch != EOF)
-    {
-        if (ispunct(ch))
-        {
-            putc(' ', newfp);
-        }
-        else
-        {
-            putc(tolower(ch), newfp);
-        }
-        ch = getc(fp);
-    }
-}
+#include "cleanup.c"
 
 int main(int argc, char *argv[]) //the thing I think should NOT be perserved in this c file. It should be showed in plagiarlism.c
 {
@@ -37,5 +18,4 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
     }
 
     return 0;
-} 
-
+}
