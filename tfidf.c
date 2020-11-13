@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "tfidf.h"
 #define MAXLENGTH 1024
 
 ///two docs
@@ -78,8 +79,7 @@ double idf(char **storedfile1words, char **storedfile2words, char *target, int f
             break;
         }
     }
-    double result = (2.0 / (double)countt);
-    //printf("%lf\n", result);
+    double result = (2.0 / ((double)countt+1));
     idf = log(result) / log(10);
     return idf;
 }
@@ -113,55 +113,158 @@ int *reader(char **fname, int numfile, char **words, char **words2)
                 index++;
             }
         }
+        fclose(fp);
     }
     lengths[0] = index;
     lengths[1] = index2;
     return lengths;
 }
 
-int main()
+///reads single file and store words to array. return length of arr
+int readinput(char *filename, char **words)
+{
+    int wordsindex = 0;
+    char *word = malloc(MAXLENGTH);
+    FILE *fp = fopen(filename, "r");
+    while (fscanf(fp, "%s", word) != EOF)
+    {
+        words[wordsindex] = malloc(strlen(word) + 1);
+        strcpy(words[wordsindex], word);
+        wordsindex++;
+    }
+    fclose(fp);
+    return wordsindex;
+}
+int int_cmp(const void *a, const void *b)
+{
+    char *resta, *restb;
+
+    char *ia = *(char **)a;
+    char *ib = *(char **)b;
+    long numbera = strtol(ia, &resta, 10);
+    long numberb = strtol(ib, &restb, 10);
+    if ((numbera - numberb) > 0)
+    {
+        return 1;
+    }
+    else if ((numbera - numberb) < 0)
+    {
+        return -1;
+    }
+    else
+    {
+        return strcmp(resta, restb);
+    }
+}
+
+void replaceword(char *fname, char *word)
+{
+    FILE *fp1, *fp2;
+    char string[MAXLENGTH], replace[] = " ";
+    char temp[] = "temp.txt";
+
+    /* open input file in read mode */
+    fp1 = fopen(fname, "r");
+
+    /* open temporary file in write mode */
+    fp2 = fopen(temp, "w");
+
+    while (fscanf(fp1, "%s", string) != EOF)
+    {
+        if (strcmp(string, word) == 0)
+        {
+            fputs(replace, fp2);
+        }
+        else
+        {
+            fputs(string, fp2);
+            fputs(" ", fp2);
+        }
+    }
+
+    /* close the opened files */
+    fclose(fp1);
+    fclose(fp2);
+
+    /* remove the input file */
+    remove(fname);
+    /* rename temporary file name to input file name */
+    rename(temp, fname);
+}
+
+void digit_sort(char **lines, size_t length, char **removewords, char *fname)
+{
+    int index;
+    char *rest;
+    qsort(lines, length, sizeof(char *), int_cmp);
+    long first = strtol(lines[0], &rest, 10);
+
+    for (int i = 0; i < (int)length; i++)
+    {
+        long tfidf = strtol(lines[i], &rest, 10);
+        //printf("%ld\n", strtol(lines[i], &rest, 10)); 
+         //printf("%s\n", rest);
+        if (tfidf < (first + 500))  ///important ! set the flow
+        {
+            removewords[index] = malloc(strlen(rest) + 1);
+            strcpy(removewords[index], rest);
+            index++;
+        }
+    }
+    for (int r = 0; r < index; r++)
+    {
+        replaceword(fname, removewords[r]);
+    }
+}
+
+void tfidf(char **fnames)
 {
     ///read()
     int *filelengths, filelength1, filelength2;
-    char *fname[2] = {"result1.txt", "result2.txt"};
     char **file1words = malloc(sizeof(char *) * MAXLENGTH * MAXLENGTH);
     char **file2words = malloc(sizeof(char *) * MAXLENGTH * MAXLENGTH);
-    filelengths = reader(fname, 2, file1words, file2words);
+    filelengths = reader(fnames, 2, file1words, file2words); ///set number of file to 2
     filelength1 = filelengths[0];
     filelength2 = filelengths[1];
-    for (int q = 0; q < filelength1; q++)
-    {
-        printf("%s\n", file1words[q]);
-    }
-    for (int k = 0; k < filelength2; k++)
-    {
-        printf("%s\n", file2words[k]);
-    }
-    printf("%d\n", filelength1);
-    printf("%d\n", filelength2);
 
+    //store()
     //store file1
     char **storedfile1words = malloc(sizeof(char *) * (filelength1 - 1) * MAXLENGTH);
     int storedfile1num[filelength1 - 1];
     int file1count = storager(file1words, filelength1, storedfile1words, storedfile1num);
-    printf("file1count: %d\n", file1count);
-
     //store file2
     char **storedfile2words = malloc(sizeof(char *) * (filelength2 - 1) * MAXLENGTH);
     int storedfile2num[filelength2 - 1];
     int file2count = storager(file2words, filelength2, storedfile2words, storedfile2num);
-    printf("file2count: %d\n", file2count);
 
-    //tf of i in file1 and file2
-    //printf("%lf\n", tf(storedfile1words, "i", storedfile1num, filelength1, file1count));
-   //printf("%lf\n", tf(storedfile2words, "i", storedfile2num, filelength2, file2count));
+    ///turn double into string, give a list of int+word
+    //file1
+    char **file1 = malloc(MAXLENGTH * MAXLENGTH);
+    char **removewords1 = malloc(MAXLENGTH * MAXLENGTH);
+    char tfidf1[file1count];
+    char **tfidffile1 = malloc(MAXLENGTH * MAXLENGTH);
+    int originallength1 = readinput("result1.txt", file1);
+    for (int z = 0; z < originallength1; z++)
+    {
+        sprintf(tfidf1, "%d", (int)(tf(storedfile1words, file1[z], storedfile1num, filelength1, file1count) * idf(storedfile1words, storedfile2words, file1[z], file1count, file2count) * 1000000));
+        strcat(tfidf1, file1[z]);
+        tfidffile1[z] = malloc(strlen(tfidf1) + 1);
+        strcpy(tfidffile1[z], tfidf1);
+    }
+    digit_sort(tfidffile1, originallength1, removewords1, "result1.txt");
 
-    //idf
-    //printf("%lf\n", idf(storedfile1words, storedfile2words, "zhang", file1count, file2count));
-
-    //finally! single word
-    printf("%lf\n", (tf(storedfile1words, "weirdo", storedfile1num, filelength1, file1count) * idf(storedfile1words, storedfile2words, "weirdo", file1count, file2count)));
-    printf("%lf\n", (tf(storedfile1words, "i", storedfile1num, filelength1, file1count) * idf(storedfile1words, storedfile2words, "i", file1count, file2count)));
-
-    return 0;
+    //file2
+    char **file2 = malloc(MAXLENGTH * MAXLENGTH);
+    char **removewords2 = malloc(MAXLENGTH * MAXLENGTH);
+    char tfidf2[file2count];
+    char **tfidffile2 = malloc(MAXLENGTH * MAXLENGTH);
+    int originallength2 = readinput("result2.txt", file2);
+    for (int z = 0; z < originallength2; z++)
+    {
+        sprintf(tfidf2, "%d", (int)(tf(storedfile2words, file2[z], storedfile2num, filelength2, file2count) * idf(storedfile2words, storedfile1words, file2[z], file2count, file1count) * 1000000));
+        strcat(tfidf2, file2[z]);
+        tfidffile2[z] = malloc(strlen(tfidf2) + 1);
+        strcpy(tfidffile2[z], tfidf2);
+    }
+    digit_sort(tfidffile2, originallength2, removewords2, "result2.txt");
 }

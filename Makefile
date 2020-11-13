@@ -1,19 +1,19 @@
 CC = gcc
 CFLAGS = -g -Wall -Wextra -pedantic
+LIBS += -lm
 
-all: tfidf 
+all: plagiarism 
 
-cleanup: cleanup.c 
-	$(CC) $(CFLAGS) cleanup.c -o cleanup
+plagiarism: plagiarism.c cleanup.o tfidf.o
+	$(CC) $(CFLAGS) plagiarism.c cleanup.o tfidf.o -o plagiarism $(LIBS)
 
-tfidf: tfidf.c 
-	$(CC) $(CFLAGS) tfidf.c -o tfidf -lm
+cleanup.o: cleanup.c
+	$(CC) -c $(CFLAGS) cleanup.c
 
-test: test.c 
-	$(CC) $(CFLAGS) test.c -o test
+tfidf.o: tfidf.c
+	$(CC) -c $(CFLAGS) $(LIBS) tfidf.c 
 
-plagiarism: plagiarism.c 
-	$(CC) $(CFLAGS) plagiarism.c -o plagiarism
+
 
 clean:
-	rm -f cleanup tfidf ./-g
+	rm -f *.o cleanup tfidf plagiarism ./-g

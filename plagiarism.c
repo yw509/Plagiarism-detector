@@ -1,11 +1,12 @@
 #include <stdio.h>
-#include "cleanup.c"
+#include "cleanup.h"
+#include "tfidf.h"
 
 int main(int argc, char *argv[]) //the thing I think should NOT be perserved in this c file. It should be showed in plagiarlism.c
 {
     int index = 0;
     FILE *fp, *newfp;
-    char *names[100] = {"result1.txt", "result2.txt", "result3.txt"};
+    char *names[2] = {"result1.txt", "result2.txt"};
     for (int i = 1; i < argc; i++)
     {
         printf("%s\n", argv[i]);
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
         fclose(newfp);
         index++;
     }
-
+    tfidf(names);
+    
     return 0;
 }
