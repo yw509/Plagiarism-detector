@@ -153,8 +153,8 @@ int main()
     printf("file2count: %d\n", file2count);
 
     //tf of i in file1 and file2
-    printf("%lf\n", tf(storedfile1words, "i", storedfile1num, filelength1, file1count));
-    printf("%lf\n", tf(storedfile2words, "i", storedfile2num, filelength2, file2count));
+    //printf("%lf\n", tf(storedfile1words, "i", storedfile1num, filelength1, file1count));
+   //printf("%lf\n", tf(storedfile2words, "i", storedfile2num, filelength2, file2count));
 
     //idf
     //printf("%lf\n", idf(storedfile1words, storedfile2words, "zhang", file1count, file2count));
