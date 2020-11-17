@@ -40,7 +40,6 @@ int storager(char **arr, int length, char **words, int num[])
 
     return count;
 }
-
 ///return the tf of word target
 double tf(char **words, char *target, int num[], int length, int count)
 {
@@ -159,6 +158,7 @@ int int_cmp(const void *a, const void *b)
 
 void replaceword(char *fname, char *word)
 {
+    char *w=word;
     FILE *fp1, *fp2;
     char string[MAXLENGTH], replace[] = " ";
     char temp[] = "temp.txt";
@@ -171,7 +171,7 @@ void replaceword(char *fname, char *word)
 
     while (fscanf(fp1, "%s", string) != EOF)
     {
-        if (strcmp(string, word) == 0)
+        if (strcmp(string, w) == 0)
         {
             fputs(replace, fp2);
         }
@@ -193,8 +193,8 @@ void replaceword(char *fname, char *word)
 }
 
 void digit_sort(char **lines, size_t length, char **removewords, char *fname)
-{
-    int index;
+{   char **rw=removewords;
+    int index=0;
     char *rest;
     qsort(lines, length, sizeof(char *), int_cmp);
     long first = strtol(lines[0], &rest, 10);
@@ -206,14 +206,15 @@ void digit_sort(char **lines, size_t length, char **removewords, char *fname)
          //printf("%s\n", rest);
         if (tfidf < (first + 500))  ///important ! set the flow
         {
-            removewords[index] = malloc(strlen(rest) + 1);
-            strcpy(removewords[index], rest);
+            rw[index] = malloc(strlen(rest) + 1);
+            strcpy(rw[index], rest);
             index++;
         }
     }
     for (int r = 0; r < index; r++)
     {
-        replaceword(fname, removewords[r]);
+        replaceword(fname, rw[r]);
+	free(rw[r]);
     }
 }
 
@@ -252,7 +253,6 @@ void tfidf(char **fnames)
         strcpy(tfidffile1[z], tfidf1);
     }
     digit_sort(tfidffile1, originallength1, removewords1, "result1.txt");
-
     //file2
     char **file2 = malloc(MAXLENGTH * MAXLENGTH);
     char **removewords2 = malloc(MAXLENGTH * MAXLENGTH);
@@ -267,4 +267,15 @@ void tfidf(char **fnames)
         strcpy(tfidffile2[z], tfidf2);
     }
     digit_sort(tfidffile2, originallength2, removewords2, "result2.txt");
+    free(file1words);
+    free(file2words);
+    free(storedfile1words);
+    free(storedfile2words);
+    free(removewords1);
+    free(tfidffile1);
+    free(file1);
+    free(file2);
+    free(removewords2);
+    free(tfidffile2);
+
 }
