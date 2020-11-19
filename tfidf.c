@@ -11,12 +11,12 @@
 int storager(char **arr, int length, char **words, int num[])
 {
     int index = 0, contain = 1, count = 0; //contain = 1 represents arr[index] is not in words
-
+    char **word=words;
     for (int i = 0; i < length; i++)
     {
         for (index = 0; index < count; index++)
         {
-            if (strcmp(arr[i], words[index]) == 0)
+            if (strcmp(arr[i], word[index]) == 0)
             {
                 num[index] += 1;
                 contain = 0;
@@ -30,8 +30,8 @@ int storager(char **arr, int length, char **words, int num[])
 
         if (contain == 1)
         {
-            words[count] = malloc(strlen(arr[i]) + 1);
-            strcpy(words[count], arr[i]);
+            word[count] = malloc(strlen(arr[i]) + 1);
+            strcpy(word[count], arr[i]);
             count += 1;
             num[index] = 1;
         }
@@ -78,7 +78,7 @@ double idf(char **storedfile1words, char **storedfile2words, char *target, int f
             break;
         }
     }
-    double result = (2.0 / ((double)countt+1));
+    double result = (2.0 / (double)countt);
     idf = log(result) / log(10);
     return idf;
 }
@@ -114,6 +114,8 @@ int *reader(char **fname, int numfile, char **words, char **words2)
         }
         fclose(fp);
     }
+    free(word);
+    free(word2);
     lengths[0] = index;
     lengths[1] = index2;
     return lengths;
@@ -132,6 +134,7 @@ int readinput(char *filename, char **words)
         wordsindex++;
     }
     fclose(fp);
+    free(word);
     return wordsindex;
 }
 int int_cmp(const void *a, const void *b)
@@ -267,15 +270,39 @@ void tfidf(char **fnames)
         strcpy(tfidffile2[z], tfidf2);
     }
     digit_sort(tfidffile2, originallength2, removewords2, "result2.txt");
+	
+    for (int z = 0; z < filelength1; z++){
+         free(file1words[z]);
+    }
     free(file1words);
+    for (int z = 0; z < filelength2; z++){
+         free(file2words[z]);
+    }
     free(file2words);
+    for (int z = 0; z < file1count; z++){
+         free(storedfile1words[z]);
+    }
     free(storedfile1words);
+    for (int z = 0; z < file2count; z++){
+         free(storedfile2words[z]);
+    }
     free(storedfile2words);
     free(removewords1);
-    free(tfidffile1);
+    for (int z = 0; z < originallength1; z++){
+         free(file1[z]);
+    }
     free(file1);
+    for (int z = 0; z < originallength2; z++){
+         free(file2[z]);
+    }
     free(file2);
     free(removewords2);
+    for (int z = 0; z < originallength1; z++){
+	free(tfidffile1[z]);
+    }
+    free(tfidffile1);
+    for (int z = 0; z < originallength2; z++){
+        free(tfidffile2[z]);
+    }
     free(tfidffile2);
-
 }
