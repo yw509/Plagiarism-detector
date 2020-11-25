@@ -74,6 +74,7 @@ void lucky_free(struct Table *table)
     free(table->tail);
     free(table);
 }
+
 //delete later
 void print_table(struct Table *table)
 {
@@ -90,8 +91,7 @@ void shuffle(char *string, int whichfile, struct Table *a)
     bool check = false;
     struct Table *table = a;
     struct Node *tmp = table->head->next;
-    //printf("here: ");
-    //print_table(table);
+
     //tranverse the table, check if string is already in there
     while (tmp != table->tail)
     {
@@ -101,12 +101,10 @@ void shuffle(char *string, int whichfile, struct Table *a)
             check = true;
             if (whichfile == 1)
             {
-                //printf("data1 + 1: %s The word in map is: %s\n", string, tmp->word);
                 tmp->data1 += 1;
             }
             else
             {
-                //printf("data2 + 1: %s\n", string);
                 tmp->data2 += 1;
             }
         }
@@ -116,73 +114,73 @@ void shuffle(char *string, int whichfile, struct Table *a)
     {
         if (whichfile == 1)
         {
-            //printf("created new word1: %s\n", string);
             add_to_front(1, 0, string, table);
-            //print_table(table);
         }
         else
         {
-            //("created new word: %s\n", string);
             add_to_front(0, 1, string, table);
         }
     }
-    //printf("In function ");
-    //print_table(table);
 }
 
-/*double calculator(struct Table *a)
+double calculator(struct Table *a)
 {
     struct Table *table = a;
+    struct Node *tmp = table->head->next;
+    int numerator = 0, collector1 = 0, collector2 = 0;
+    double denominator, result;
 
-}*/
+    while (tmp != table->tail)
+    {
+        numerator += tmp->data1 * tmp->data2;
+        collector1 += tmp->data1 * tmp->data1;
+        collector2 += tmp->data2 * tmp->data2;
+        tmp = tmp->next;
+    }
+    denominator = sqrt(collector1) * sqrt(collector2);
+
+    result = numerator / denominator;
+    result = result * 100;
+    return result;
+}
 
 ///body functions
 void reader(struct Table *a) //read and store elements into table
 {
     struct Table *table = a;
-    char *word1 = malloc(sizeof(char *));
+    char *word1 = malloc(sizeof(char *)); //free
+    char *word2 = malloc(sizeof(char *)); //free
 
     FILE *fp1 = fopen("result1.txt", "r");
     while (fscanf(fp1, "%s", word1) != EOF)
     {
-        printf("%s\n", word1);
         shuffle(word1, 1, table);
-        print_table(table);
+        word1 = malloc(sizeof(char *)); //free
     }
     fclose(fp1);
+    free(word1);
 
-    /* FILE *fp2 = fopen("result2.txt", "r");
+    FILE *fp2 = fopen("result2.txt", "r");
     while (fscanf(fp2, "%s", word2) != EOF)
     {
-        //printf("%s\n", word2);
         shuffle(word2, 2, table);
+        word2 = malloc(sizeof(char *)); //free
     }
-    fclose(fp2);*/
+    fclose(fp2);
+    free(word2);
+}
+
+//main function of this file
+void cossim()
+{
+    struct Table *table = create_table();
+    reader(table);
+    printf("The cosine similarity is: %.2f%%\n", calculator(table));
+    lucky_free(table);
 }
 
 int main()
 {
-    struct Table *table = create_table();
-    char *word1 = malloc(sizeof(char *));
-
-   FILE *fp1 = fopen("result1.txt", "r");
-
-    while (fscanf(fp1, "%s", word1) != EOF)
-    {
-        //print_table(table);
-        printf("%s\n", word1);
-        shuffle(word1, 1, table);
-        //printf("hey");
-        //print_table(table);
-    }
-
-    //shuffle("is", 1, table);
-    //shuffle("it", 1, table);
-    //shuffle("is", 1, table);
-    // shuffle("is", 2, table);
-    /*add_to_front(1, 0, "hello", table);
-    add_to_front(0, 1, "world", table);*/
-    print_table(table);
-    fclose(fp1);
+    cossim();
     return 0;
 }
