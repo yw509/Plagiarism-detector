@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include "cossim.h"
 
 //structure
 struct Node
@@ -145,7 +146,7 @@ double calculator(struct Table *a)
 }
 
 ///body functions
-void reader(struct Table *a) //read and store elements into table
+void readin(struct Table *a) //read and store elements into table
 {
     struct Table *table = a;
     char *word1 = malloc(sizeof(char *)); //free
@@ -158,7 +159,6 @@ void reader(struct Table *a) //read and store elements into table
         word1 = malloc(sizeof(char *)); //free
     }
     fclose(fp1);
-    free(word1);
 
     FILE *fp2 = fopen("result2.txt", "r");
     while (fscanf(fp2, "%s", word2) != EOF)
@@ -167,20 +167,13 @@ void reader(struct Table *a) //read and store elements into table
         word2 = malloc(sizeof(char *)); //free
     }
     fclose(fp2);
-    free(word2);
 }
 
 //main function of this file
 void cossim()
 {
     struct Table *table = create_table();
-    reader(table);
+    readin(table);
     printf("The cosine similarity is: %.2f%%\n", calculator(table));
     lucky_free(table);
-}
-
-int main()
-{
-    cossim();
-    return 0;
 }

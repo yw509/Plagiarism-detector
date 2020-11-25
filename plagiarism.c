@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "cleanup.h"
 #include "tfidf.h"
+#include "cossim.h"
 
 int main(int argc, char *argv[]) //the thing I think should NOT be perserved in this c file. It should be showed in plagiarlism.c
 {
@@ -18,7 +19,8 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
         index++;
     }
 
-    tfidf(names);
+    //tfidf(names);
+    cossim();
 
     return 0;
 }
