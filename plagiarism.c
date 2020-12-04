@@ -26,6 +26,6 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
 
     //tfidf(names);
     cossim();
-
+    ///result1.txt result2.txt delete
     return 0;
 }
