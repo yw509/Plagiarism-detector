@@ -6,7 +6,6 @@
 #include "cossim.h"
 #include <limits.h>
 #define MAX_LENGTH 30
-#define FILE_MAX 102400
 //structure
 struct Node
 {
@@ -71,7 +70,7 @@ void lucky_free(struct Table *table)
     {
         tmp = n;
         n = n->next;
-        //free(tmp->word);
+        free(tmp->word);
         free(tmp);
     }
     free(table->head);
@@ -150,42 +149,39 @@ double calculator(struct Table *a)
 }
 
 
+void readin(struct Table *a) //read and store elements into table
+{
+    struct Table *table = a;
+    char *word1 = malloc(sizeof(char) * MAX_LENGTH); //free
+    char *word2 = malloc(sizeof(char) * MAX_LENGTH); //free
+
+    FILE *fp1 = fopen("result1.txt", "r");
+    while (fscanf(fp1, "%s", word1) != EOF)
+    {
+        shuffle(word1, 1, table);
+        word1 = malloc(sizeof(char) * MAX_LENGTH);
+    }
+    free(word1);
+    fclose(fp1);
+
+    FILE *fp2 = fopen("result2.txt", "r");
+    while (fscanf(fp2, "%s", word2) != EOF)
+    {
+        shuffle(word2, 2, table);
+        word2 = malloc(sizeof(char) * MAX_LENGTH);
+    }
+    free(word2);
+    fclose(fp2);
+}
+
 //main function of this file
 void cossim()
 {
     struct Table *table = create_table();
-    char *word1[FILE_MAX];
-    char str1[FILE_MAX];
-    char *word2[FILE_MAX];
-    char str2[FILE_MAX];
-    int n1=0;
-    int n2=0;
-    FILE *fp1 = fopen("result1.txt", "r");
-    while (fscanf(fp1, "%s", str1) != EOF)
-    {
-        word1[n1]=malloc(sizeof(char) * MAX_LENGTH);
-        strcpy(word1[n1],str1);
-        shuffle(word1[n1], 1, table);
-        n1++;
-    }
-    fclose(fp1);
 
-    FILE *fp2 = fopen("result2.txt", "r");
-    while (fscanf(fp2, "%s", str2) != EOF)
-    {
-        word2[n2]=malloc(sizeof(char) * MAX_LENGTH);
-        strcpy(word1[n2],str2);
-        shuffle(word1[n2], 2, table);
-        n2++;
-    }
-    fclose(fp2);
+    readin(table);
+    //print_table(table);
     printf("The cosine similarity is: %.2f%%\n", calculator(table));
-    for (int i = 0; i < n1; i++) {
-      free(word1[i]);
-    }
-    for (int i = 0; i < n2; i++) {
-      free(word2[i]);
-    }
     lucky_free(table);
 }
 
