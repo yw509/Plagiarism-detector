@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include "cossim.h"
 #define MAX_LENGTH 30
 
 //structure
