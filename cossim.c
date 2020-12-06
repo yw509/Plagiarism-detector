@@ -145,6 +145,10 @@ double calculator(struct Table *a)
 
     result = numerator / denominator;
     result = result * 100;
+    if (result != result) //detect the NaN
+    {
+        result = 0;
+    }
     return result;
 }
 
