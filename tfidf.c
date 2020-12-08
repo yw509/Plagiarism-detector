@@ -322,10 +322,10 @@ void tfidf()
 
     // printf("\n");
     bubbleSort(ll1);
-    print_ll(ll1);
-    printf("\n");
+    //print_ll(ll1);
+    //printf("\n");
     bubbleSort(ll2);
-    print_ll(ll2);
+    //print_ll(ll2);
 
     temp_print(ll1, ll2); //delete later
     //free_ll(ll1); //error???
