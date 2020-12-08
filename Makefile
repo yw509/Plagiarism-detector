@@ -1,5 +1,5 @@
-CC = gcc
-CFLAGS = -g -Wall -Wextra -pedantic
+CC = clang
+CFLAGS = -Wall -std=c11 -fsanitize=undefined,address
 LIBS += -lm
 
 all: plagiarism 
@@ -11,10 +11,10 @@ cleanup.o: cleanup.c
 	$(CC) -c $(CFLAGS) cleanup.c
 
 tfidf.o: tfidf.c
-	$(CC) -c $(CFLAGS) $(LIBS) tfidf.c 
+	$(CC) -c $(CFLAGS) tfidf.c 
 
 cossim.o: cossim.c
-	$(CC) -c $(CFLAGS) $(LIBS) cossim.c 
+	$(CC) -c $(CFLAGS) cossim.c 
 
 clean:
 	rm -f *.o cleanup tfidf plagiarism cossim ./-g

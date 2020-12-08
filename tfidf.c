@@ -1,308 +1,328 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdlib.h>
-#include <math.h>
-#include "tfidf.h"
-#define MAXLENGTH 1024
+#define MAX_LENGTH 30
 
-///two docs
-///store word and its occurence in words and num accordingly. return number of elements in words
-int storager(char **arr, int length, char **words, int num[])
+/*using a trie can be faster to search but I am exhausted */
+
+struct Node
 {
-    int index = 0, contain = 1, count = 0; //contain = 1 represents arr[index] is not in words
-    char **word=words;
-    for (int i = 0; i < length; i++)
+    char *word;
+    int count;
+    double tf;
+    double tf_idf;
+    struct Node *next;
+};
+
+struct linked_list
+{
+    int size;
+    struct Node *head;
+    struct Node *tail;
+};
+
+//utility functions for linked_list
+
+struct Node *make_node(int val, char *string, int tfval, struct Node *next)
+{
+    struct Node *n = malloc(sizeof(struct Node));
+    if (n == NULL)
     {
-        for (index = 0; index < count; index++)
-        {
-            if (strcmp(arr[i], word[index]) == 0)
-            {
-                num[index] += 1;
-                contain = 0;
-                break;
-            }
-            else
-            {
-                contain = 1;
-            }
-        }
-
-        if (contain == 1)
-        {
-            word[count] = malloc(strlen(arr[i]) + 1);
-            strcpy(word[count], arr[i]);
-            count += 1;
-            num[index] = 1;
-        }
-        contain = 1;
+        return NULL;
     }
+    n->count = val;
+    n->word = string;
+    n->tf = tfval;
+    n->tf_idf = 0;
+    n->next = next;
+    return n;
+}
 
+// Create Linked List
+struct linked_list *create_ll()
+{
+    struct linked_list *ll = malloc(sizeof(struct linked_list));
+    if (ll == NULL)
+    {
+        printf("memory allocation failed. \n");
+        EXIT_FAILURE;
+    }
+    ll->head = make_node(-1, "$", 0, NULL);
+    ll->tail = make_node(-1, "#", 0, NULL);
+    ll->head->next = ll->tail;
+    return (ll);
+}
+
+struct Node *add_to_beginning(int count, char *string, int tfval, struct linked_list *ll)
+{
+    struct Node *n = make_node(count, string, tfval, ll->head->next);
+    if (ll == NULL)
+    {
+        printf("memory allocation failed. \n");
+        EXIT_FAILURE;
+    }
+    ll->head->next = n;
+    return n;
+}
+
+void free_ll(struct linked_list *ll)
+{
+    struct Node *n = ll->head->next;
+    struct Node *tmp;
+    while (n != ll->tail)
+    {
+        tmp = n;
+        free(tmp->word);
+        free(tmp);
+        n = n->next;
+    }
+    free(ll->head);
+    free(ll->tail);
+    free(ll);
+}
+
+//delete later
+void print_ll(struct linked_list *ll)
+{
+    struct Node *n = ll->head->next;
+
+    while (n != ll->tail)
+    {
+        printf("%s %d  tfvalue: %f  tfidfvalue: %f\n", n->word, n->count, n->tf, n->tf_idf);
+        n = n->next;
+    }
+}
+
+//delete later
+void temp_print(struct linked_list *ll1, struct linked_list *ll2)
+{
+    struct Node *node1 = ll1->head->next;
+    struct Node *node2 = ll2->head->next;
+
+    FILE *fp1 = fopen("result1.txt", "w+");
+    while (node1 != ll1->tail)
+    {
+        if (node1->tf_idf < 0.25)
+        {
+            for (int i = 0; i < node1->count; i++)
+                fprintf(fp1, "%s ", node1->word);
+        }
+
+        node1 = node1->next;
+    }
+    fclose(fp1);
+
+    FILE *fp2 = fopen("result2.txt", "w+");
+    while (node2 != ll2->tail)
+    {
+        if (node2->tf_idf < 0.25)
+        {
+            for (int i = 0; i < node2->count; i++)
+                fprintf(fp1, "%s ", node2->word);
+        }
+        node2 = node2->next;
+    }
+    fclose(fp2);
+}
+
+//body functions
+
+int totalword(struct linked_list *ll) ///count total words and store the size
+{
+    int count = 0;
+    struct Node *n = ll->head->next;
+
+    while (n != ll->tail)
+    {
+        count += n->count;
+        n = n->next;
+    }
+    ll->size = count;
     return count;
 }
-///return the tf of word target
-double tf(char **words, char *target, int num[], int length, int count)
+
+void calctf(struct linked_list *ll) //calculate the tf of a list of words
 {
-    int countt;
-    double tf;
-    for (int i = 0; i < count; i++)
+    int total_word = totalword(ll);
+    struct Node *n = ll->head->next;
+
+    while (n != ll->tail)
     {
-        if (strcmp(words[i], target) == 0)
-        {
-            countt = num[i];
-            break;
-        }
+        n->tf = (double)n->count / total_word;
+        n = n->next;
     }
-    tf = (double)countt / (double)length;
-    return tf;
 }
 
-double idf(char **storedfile1words, char **storedfile2words, char *target, int file1count, int file2count)
+void calctfidf(struct linked_list *ll1, struct linked_list *ll2)
 {
-    int countt = 0;
-    double idf;
-    for (int i = 0; i < file1count; i++)
-    {
-        if (strcmp(storedfile1words[i], target) == 0)
-        {
-            countt++;
-            break;
-        }
-    }
+    bool checker = false;
+    struct Node *node1 = ll1->head->next;
+    struct Node *node2 = ll2->head->next;
 
-    for (int q = 0; q < file2count; q++)
+    while (node1 != ll1->tail)
     {
-        if (strcmp(storedfile2words[q], target) == 0)
+        checker = false;
+        char *temp = node1->word;
+        while (node2 != ll2->tail)
         {
-            countt++;
-            break;
-        }
-    }
-    double result = (2.0 / (double)countt);
-    idf = log(result) / log(10);
-    return idf;
-}
-///PROBLEM!!!    Only can read two files
-//store lists of words of two files, return array contains two lengths
-int *reader(char **fname, int numfile, char **words, char **words2)
-{
-    int index = 0, index2 = 0;
-    static int lengths[2];
-    char *word = malloc(sizeof(char) * MAXLENGTH);
-    char *word2 = malloc(sizeof(char) * MAXLENGTH);
-
-    for (int i = 0; i < numfile; i++)
-    {
-        FILE *fp = fopen(fname[i], "r");
-        if (i == 1)
-        {
-            while (fscanf(fp, "%s", word2) != EOF)
+            if (strcmp(temp, node2->word) == 0)
             {
-                words2[index2] = malloc(strlen(word2) + 1);
-                strcpy(words2[index2], word2);
-                index2++;
+                checker = true;
+                node1->tf_idf = node1->tf * 1; // 1 = 2 / 2
+                break;
             }
+            node2 = node2->next;
         }
-        else
+        if (checker == false) //doc2 has no same word
         {
-            while (fscanf(fp, "%s", word) != EOF)
-            {
-                words[index] = malloc(strlen(word) + 1);
-                strcpy(words[index], word);
-                index++;
-            }
+            node1->tf_idf = node1->tf * 2; //2 = 2 / 1
         }
-        fclose(fp);
+        node1 = node1->next;
     }
-    free(word);
-    free(word2);
-    lengths[0] = index;
-    lengths[1] = index2;
-    return lengths;
+
+    node1 = ll1->head->next;
+    node2 = ll2->head->next;
+    while (node2 != ll2->tail)
+    {
+        checker = false;
+        char *temp = node2->word;
+        while (node1 != ll1->tail)
+        {
+            if (strcmp(temp, node1->word) == 0)
+            {
+                checker = true;
+                node2->tf_idf = node2->tf * 1; // 1 = 2 / 2
+                break;
+            }
+            node1 = node1->next;
+        }
+        if (checker == false) //doc1 has no same word
+        {
+            node2->tf_idf = node2->tf * 2; //2 = 2 / 1
+        }
+        node2 = node2->next;
+    }
 }
 
-///reads single file and store words to array. return length of arr
-int readinput(char *filename, char **words)
+/* function to swap data of two nodes a and b*/
+void swap(struct Node *a, struct Node *b)
 {
-    int wordsindex = 0;
-    char *word = malloc(MAXLENGTH);
-    FILE *fp = fopen(filename, "r");
-    while (fscanf(fp, "%s", word) != EOF)
+    double temp = a->tf_idf; //swap tfidf
+    a->tf_idf = b->tf_idf;
+    b->tf_idf = temp;
+
+    double temp1 = a->tf; ///swap tf
+    a->tf = b->tf;
+    b->tf = temp1;
+
+    char *temp2 = a->word; //swap word
+    a->word = b->word;
+    b->word = temp2;
+
+    int temp3 = a->count; //swap count
+    a->count = b->count;
+    b->count = temp3;
+}
+
+/* Bubble sort the given linked list */
+void bubbleSort(struct linked_list *ll)
+{
+    int swapped;
+    struct Node *start = ll->head->next;
+    struct Node *ptr1;
+    struct Node *lptr = ll->tail;
+
+    /* Checking for empty list */
+    if (start == NULL)
+        return;
+
+    do
     {
-        words[wordsindex] = malloc(strlen(word) + 1);
-        strcpy(words[wordsindex], word);
-        wordsindex++;
+        swapped = 0;
+        ptr1 = start;
+
+        while (ptr1->next != lptr)
+        {
+            if (ptr1->tf_idf > ptr1->next->tf_idf)
+            {
+                swap(ptr1, ptr1->next);
+                swapped = 1;
+            }
+            ptr1 = ptr1->next;
+        }
+        lptr = ptr1;
+    } while (swapped);
+}
+
+void distributor(char *word, struct linked_list *ll) //store each word to ll
+{
+
+    bool checker = false;
+    struct Node *n = ll->head->next;
+
+    while (n != ll->tail)
+    {
+        if (strcmp(word, n->word) == 0)
+        {
+            checker = true;
+            n->count += 1;
+        }
+        n = n->next;
+    }
+
+    if (checker == false)
+    {
+        add_to_beginning(1, word, 0, ll);
+    }
+}
+
+void storager(struct linked_list *ll, char *fname) //read each word to ll
+{
+    char *word = malloc(sizeof(char) * MAX_LENGTH);
+
+    FILE *fp = fopen(fname, "r");
+    while (fscanf(fp, "%s", word) == 1)
+    {
+
+        distributor(word, ll);
+        word = malloc(sizeof(char) * MAX_LENGTH);
     }
     fclose(fp);
-    free(word);
-    return wordsindex;
-}
-int int_cmp(const void *a, const void *b)
-{
-    char *resta, *restb;
-
-    char *ia = *(char **)a;
-    char *ib = *(char **)b;
-    long numbera = strtol(ia, &resta, 10);
-    long numberb = strtol(ib, &restb, 10);
-    if ((numbera - numberb) > 0)
-    {
-        return 1;
-    }
-    else if ((numbera - numberb) < 0)
-    {
-        return -1;
-    }
-    else
-    {
-        return strcmp(resta, restb);
-    }
-}
-
-void replaceword(char *fname, char *word)
-{
-    char *w=word;
-    FILE *fp1, *fp2;
-    char string[MAXLENGTH], replace[] = " ";
-    char temp[] = "temp.txt";
-
-    /* open input file in read mode */
-    fp1 = fopen(fname, "r");
-
-    /* open temporary file in write mode */
-    fp2 = fopen(temp, "w");
-
-    while (fscanf(fp1, "%s", string) != EOF)
-    {
-        if (strcmp(string, w) == 0)
-        {
-            fputs(replace, fp2);
-        }
-        else
-        {
-            fputs(string, fp2);
-            fputs(" ", fp2);
-        }
-    }
-
-    /* close the opened files */
-    fclose(fp1);
-    fclose(fp2);
-
-    /* remove the input file */
     remove(fname);
-    /* rename temporary file name to input file name */
-    rename(temp, fname);
 }
 
-void digit_sort(char **lines, size_t length, char **removewords, char *fname)
-{   char **rw=removewords;
-    int index=0;
-    char *rest;
-    qsort(lines, length, sizeof(char *), int_cmp);
-    long first = strtol(lines[0], &rest, 10);
-
-    for (int i = 0; i < (int)length; i++)
-    {
-        long tfidf = strtol(lines[i], &rest, 10);
-        //printf("%ld\n", strtol(lines[i], &rest, 10)); 
-         //printf("%s\n", rest);
-        if (tfidf < (first + 500))  ///important ! set the flow
-        {
-            rw[index] = malloc(strlen(rest) + 1);
-            strcpy(rw[index], rest);
-            index++;
-        }
-    }
-    for (int r = 0; r < index; r++)
-    {
-        replaceword(fname, rw[r]);
-	free(rw[r]);
-    }
-}
-
-void tfidf(char **fnames)
+void tfidf()
 {
-    ///read()
-    int *filelengths, filelength1, filelength2;
-    char **file1words = malloc(sizeof(char *) * MAXLENGTH * MAXLENGTH);
-    char **file2words = malloc(sizeof(char *) * MAXLENGTH * MAXLENGTH);
-    filelengths = reader(fnames, 2, file1words, file2words); ///set number of file to 2
-    filelength1 = filelengths[0];
-    filelength2 = filelengths[1];
+    struct linked_list *ll1 = create_ll();
+    storager(ll1, "result1.txt");
+    calctf(ll1);
+    //printf("The size is: %d\n", totalword(ll1));
+    //print_ll(ll1);
 
-    //store()
-    //store file1
-    char **storedfile1words = malloc(sizeof(char *) * (filelength1 - 1) * MAXLENGTH);
-    int storedfile1num[filelength1 - 1];
-    int file1count = storager(file1words, filelength1, storedfile1words, storedfile1num);
-    //store file2
-    char **storedfile2words = malloc(sizeof(char *) * (filelength2 - 1) * MAXLENGTH);
-    int storedfile2num[filelength2 - 1];
-    int file2count = storager(file2words, filelength2, storedfile2words, storedfile2num);
+   // printf("\n");
 
-    ///turn double into string, give a list of int+word
-    //file1
-    char **file1 = malloc(MAXLENGTH * MAXLENGTH);
-    char **removewords1 = malloc(MAXLENGTH * MAXLENGTH);
-    char tfidf1[file1count];
-    char **tfidffile1 = malloc(MAXLENGTH * MAXLENGTH);
-    int originallength1 = readinput("result1.txt", file1);
-    for (int z = 0; z < originallength1; z++)
-    {
-        sprintf(tfidf1, "%d", (int)(tf(storedfile1words, file1[z], storedfile1num, filelength1, file1count) * idf(storedfile1words, storedfile2words, file1[z], file1count, file2count) * 1000000));
-        strcat(tfidf1, file1[z]);
-        tfidffile1[z] = malloc(strlen(tfidf1) + 1);
-        strcpy(tfidffile1[z], tfidf1);
-    }
-    digit_sort(tfidffile1, originallength1, removewords1, "result1.txt");
-    //file2
-    char **file2 = malloc(MAXLENGTH * MAXLENGTH);
-    char **removewords2 = malloc(MAXLENGTH * MAXLENGTH);
-    char tfidf2[file2count];
-    char **tfidffile2 = malloc(MAXLENGTH * MAXLENGTH);
-    int originallength2 = readinput("result2.txt", file2);
-    for (int z = 0; z < originallength2; z++)
-    {
-        sprintf(tfidf2, "%d", (int)(tf(storedfile2words, file2[z], storedfile2num, filelength2, file2count) * idf(storedfile2words, storedfile1words, file2[z], file2count, file1count) * 1000000));
-        strcat(tfidf2, file2[z]);
-        tfidffile2[z] = malloc(strlen(tfidf2) + 1);
-        strcpy(tfidffile2[z], tfidf2);
-    }
-    digit_sort(tfidffile2, originallength2, removewords2, "result2.txt");
-	
-    for (int z = 0; z < filelength1; z++){
-         free(file1words[z]);
-    }
-    free(file1words);
-    for (int z = 0; z < filelength2; z++){
-         free(file2words[z]);
-    }
-    free(file2words);
-    for (int z = 0; z < file1count; z++){
-         free(storedfile1words[z]);
-    }
-    free(storedfile1words);
-    for (int z = 0; z < file2count; z++){
-         free(storedfile2words[z]);
-    }
-    free(storedfile2words);
-    free(removewords1);
-    for (int z = 0; z < originallength1; z++){
-         free(file1[z]);
-    }
-    free(file1);
-    for (int z = 0; z < originallength2; z++){
-         free(file2[z]);
-    }
-    free(file2);
-    free(removewords2);
-    for (int z = 0; z < originallength1; z++){
-	free(tfidffile1[z]);
-    }
-    free(tfidffile1);
-    for (int z = 0; z < originallength2; z++){
-        free(tfidffile2[z]);
-    }
-    free(tfidffile2);
+    struct linked_list *ll2 = create_ll();
+    storager(ll2, "result2.txt");
+    calctf(ll2);
+    //printf("The size is: %d\n", totalword(ll2));
+   // print_ll(ll2);
+
+    //printf("\n");
+
+    calctfidf(ll1, ll2);
+   // print_ll(ll1);
+   // printf("\n");
+   // print_ll(ll2);
+
+   // printf("\n");
+    bubbleSort(ll1);
+   // print_ll(ll1);
+   // printf("\n");
+    bubbleSort(ll2);
+   // print_ll(ll2);
+
+    temp_print(ll1, ll2); //delete later
+    //free_ll(ll1); //error???
+    //free_ll(ll2); //error???
 }

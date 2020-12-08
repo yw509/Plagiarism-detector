@@ -24,7 +24,9 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
         index++;
     }
 
-    //tfidf(names);
+    tfidf();
+    
+    
     cossim();
     remove("result1.txt");
     remove("result2.txt");
