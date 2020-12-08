@@ -1,5 +1,5 @@
-CC = clang
-CFLAGS = -Wall -std=c11 -fsanitize=undefined,address
+CC = gcc
+CFLAGS = -g -Wall -Wextra -pedantic
 LIBS += -lm
 
 all: plagiarism 
