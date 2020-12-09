@@ -9,6 +9,13 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
     int index = 0;
     FILE *fp, *newfp;
     char *names[100] = {"result1.txt", "result2.txt"};
+    
+    if (argc == 1)
+    {
+        printf("Please enter two input files.\n");
+        exit(1);
+    }
+
     for (int i = 1; i < argc; i++)
     {
         fp = fopen(argv[i], "r");
