@@ -84,19 +84,6 @@ void free_ll(struct linked_list *ll)
     free(ll);
 }
 
-//delete later
-void print_ll(struct linked_list *ll)
-{
-    struct Node *n = ll->head->next;
-
-    while (n != ll->tail)
-    {
-        printf("%s %d  tfvalue: %f  tfidfvalue: %f\n", n->word, n->count, n->tf, n->tf_idf);
-        n = n->next;
-    }
-}
-
-//delete later
 void temp_print(struct linked_list *ll1, struct linked_list *ll2)
 {
     struct Node *node1 = ll1->head->next;
@@ -302,32 +289,11 @@ void tfidf()
     struct linked_list *ll1 = create_ll();
     storager(ll1, "result1.txt");
     calctf(ll1);
-    //printf("The size is: %d\n", totalword(ll1));
-    //print_ll(ll1);
-
-    // printf("\n");
-
     struct linked_list *ll2 = create_ll();
     storager(ll2, "result2.txt");
     calctf(ll2);
-    //printf("The size is: %d\n", totalword(ll2));
-    // print_ll(ll2);
-
-    //printf("\n");
-
     calctfidf(ll1, ll2);
-    // print_ll(ll1);
-    // printf("\n");
-    // print_ll(ll2);
-
-    // printf("\n");
     bubbleSort(ll1);
-    //print_ll(ll1);
-    //printf("\n");
     bubbleSort(ll2);
-    //print_ll(ll2);
-
-    temp_print(ll1, ll2); //delete later
-    //free_ll(ll1); //error???
-    //free_ll(ll2); //error???
+    temp_print(ll1, ll2); 
 }

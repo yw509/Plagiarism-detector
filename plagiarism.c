@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
     int index = 0;
     FILE *fp, *newfp;
     char *names[100] = {"result1.txt", "result2.txt"};
-    
+
     if (argc == 1)
     {
         printf("Please enter two input files.\n");
@@ -32,9 +32,26 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
     }
 
     tfidf();
-    
-    
-    cossim();
+
+    FILE *fp1, *fp2;
+    fp1 = fopen("result1.txt", "r");
+    fseek(fp1, 0, SEEK_END);
+    int size1 = ftell(fp1);
+    fp2 = fopen("result2.txt", "r");
+    fseek(fp2, 0, SEEK_END);
+    int size2 = ftell(fp2);
+    fclose(fp1);
+    fclose(fp2);
+
+    if (0 == size1 && 0 == size2)
+    {
+        printf("The cosine similarity is: 100.00%%\n");
+    }
+    else
+    {
+        cossim();
+    }
+
     remove("result1.txt");
     remove("result2.txt");
     return 0;

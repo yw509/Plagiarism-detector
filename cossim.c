@@ -6,6 +6,7 @@
 #include "cossim.h"
 #include <limits.h>
 #define MAX_LENGTH 30
+
 //structure
 struct Node
 {
