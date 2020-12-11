@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) //the thing I think should NOT be perserved in 
 
     if (0 == size1 && 0 == size2)
     {
-        printf("The cosine similarity is: 100.00%%\n");
+        printf("The similarity between these two files is: 100.00%%\n");
     }
     else
     {
