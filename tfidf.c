@@ -88,11 +88,12 @@ void temp_print(struct linked_list *ll1, struct linked_list *ll2)
 {
     struct Node *node1 = ll1->head->next;
     struct Node *node2 = ll2->head->next;
-    int size1 = ll1->size * 0.8;
-    int size2 = ll2->size * 0.8;
-
+    int size1 = ll1->size*0.75;
+    int size2 = ll2->size*0.75;
+    size1++;
+    size2++;
     FILE *fp1 = fopen("result1.txt", "w+");
-    while (size1 > 0 && node1 != ll1->tail)
+    while (size1> 0 && node1 != ll1->tail)
     {
 
         for (int i = 0; i < node1->count; i++)
@@ -103,7 +104,7 @@ void temp_print(struct linked_list *ll1, struct linked_list *ll2)
         node1 = node1->next;
     }
     fclose(fp1);
-
+    
     FILE *fp2 = fopen("result2.txt", "w+");
     while (size2 > 0 && node2 != ll2->tail)
     {
@@ -117,6 +118,7 @@ void temp_print(struct linked_list *ll1, struct linked_list *ll2)
     }
     fclose(fp2);
 }
+
 
 //body functions
 
@@ -295,5 +297,6 @@ void tfidf()
     calctfidf(ll1, ll2);
     bubbleSort(ll1);
     bubbleSort(ll2);
-    temp_print(ll1, ll2); 
+    temp_print(ll1, ll2);
 }
+
