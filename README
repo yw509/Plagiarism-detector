@@ -1,22 +1,32 @@
-Eunice Chen, Harry Zhang, Shangchi Yuan, Yuchen Wang
+Eunice Chen, Zhuoxuan Zhang, Shangchi Yuan, Yuchen Wang
 
 Plagiarism Detector
 
 Overview:
-Our project is aiming to detect the plagiarism between two files which will print out the similar percentage between two files. If the similarity between two files is bigger than 80%, the plagiarism is detected. Otherwise, we will not treat it as a plagiarism behavior. 
+Our Plagiarism Detector is aiming to detect the plagiarism between two files then print out the similar percentage between two files. If the similarity between two files is bigger than 80%, the plagiarism is detected. Otherwise, we will not treat it as a plagiarism behavior. 
+Our Plagiarism Detector works on text files such as essays, computer source code files, and other assignments in digital form.
 
-How to run?
-We implement this project by c
-Command: $ ./plagiarism test1.txt test2.txt
+How do I compile it?
+If using Unix or Linux, just type "make". 
+If using Windows, consult your compiler's documentation. You simply need to compile the plagiarism.c source code file into an executable called plagiarism (plagiarism.exe for Windows users).
 
+How do I use it?
+Plagiarism Detector is a command-line program. That is, you run it from an xterm or DOS window. It isn't graphical, and has no graphical user interface. Sorry. 
+Use it like this:
+Command: $ ./plagiarism <file1> <file2>
+
+What does the output look like?
 Sample:
 $ ./plagiarism try1.txt try2.txt
 The similarity between these two files is: 28.43%
-$ ./plagiarism test1.txt test2.txt
+$ ./plagiarism test1.c test2.c
 The similarity between these two files is: 98.94%
 Plagiarism detected.
 
-We divided our project into three main parts:
+(0% means no similarity and 100% means there is a very high chance of a lot of similarity. 100% does not mean that the files are exactly the same, since the program randomly throws away some data in order to perform a faster match.)
+(Usually, a percentage over 80 will be treated as plagiarism behavior.)
+
+We divided our Plagiarism Detector into three main parts:
 Part1: CLEANUP
 	Remove punctuations of the input files.
 	Convert words into lower cases.
@@ -30,4 +40,4 @@ Part3: COSSIM-SIMILARITY
 	Get the similarity between two files based on cos = (A * B) / (|A| * |B|)
 
 I have adhered to the Honor Code in this assignment.
-Eunice Chen, Harry Zhang, Shangchi Yuan, Yuchen Wang
+Eunice Chen, Zhuoxuan Zhang, Shangchi Yuan, Yuchen Wang
