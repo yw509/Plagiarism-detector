@@ -26,7 +26,7 @@ Plagiarism detected.
 (0% means no similarity and 100% means there is a very high chance of a lot of similarity. 100% does not mean that the files are exactly the same, since the program randomly throws away some data in order to perform a faster match.)
 (Usually, a percentage over 80 will be treated as plagiarism behavior.)
 
-We divided our Plagiarism Detector into three main parts:
+We divided our Plagiarism Detector into four main parts:
 Part1: CLEANUP
 	Remove punctuations of the input files.
 	Convert words into lower cases.
@@ -38,6 +38,14 @@ Part2: TF-IDF
 
 Part3: COSSIM-SIMILARITY
 	Get the similarity between two files based on cos = (A * B) / (|A| * |B|)
+
+Part4: PLAGIARISM
+	Integrate the preceding three parts
+
+Limitations:
+1.Our program fails to detect plagiarism if the article is a paraphrased version of the other.
+2.Our program only compares and print outs the percentage of literal similarity between two articles, so percentage over 80% may not necessarily indicates plagiarism in some situations.
+
 
 I have adhered to the Honor Code in this assignment.
 Eunice Chen, Zhuoxuan Zhang, Shangchi Yuan, Yuchen Wang
