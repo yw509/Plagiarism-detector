@@ -1,3 +1,33 @@
-//This is a README file
+Eunice Chen, Harry Zhang, Shangchi Yuan, Yuchen Wang
 
-Plagirism Detector
+Plagiarism Detector
+
+Overview:
+Our project is aiming to detect the plagiarism between two files which will print out the similar percentage between two files. If the similarity between two files is bigger than 80%, the plagiarism is detected. Otherwise, we will not treat it as a plagiarism behavior. 
+
+How to run?
+We implement this project by c
+Command: $ ./plagiarism test1.txt test2.txt
+
+Sample:
+$ ./plagiarism try1.txt try2.txt
+The similarity between these two files is: 28.43%
+$ ./plagiarism test1.txt test2.txt
+The similarity between these two files is: 98.94%
+Plagiarism detected.
+
+We divided our project into three main parts:
+Part1: CLEANUP
+	Remove punctuations of the input files.
+	Convert words into lower cases.
+
+Part2: TF-IDF
+	Get the frequency of each word.
+	Decide the importance of each word based on the value of TF-IDF.
+	Delete the words that are important such as "a, the, of, ...".
+
+Part3: COSSIM-SIMILARITY
+	Get the similarity between two files based on cos = (A * B) / (|A| * |B|)
+
+I have adhered to the Honor Code in this assignment.
+Eunice Chen, Harry Zhang, Shangchi Yuan, Yuchen Wang
