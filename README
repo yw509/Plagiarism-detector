@@ -43,8 +43,8 @@ Part4: PLAGIARISM
 	Integrate the preceding three parts
 
 Limitations:
-1.Our program fails to detect plagiarism if the article is a paraphrased version of the other.
-2.Our program only compares and print outs the percentage of literal similarity between two articles, so percentage over 80% may not necessarily indicates plagiarism in some situations.
+1.Our program fails to detect semantic similarity, so if an article is a paraphrased version of the other, the result may be inaccurate.
+2.Our program only compares and print outs the percentage of lexical similarity between two articles, so percentage over 80% may not necessarily indicates plagiarism in some situations.
 
 
 I have adhered to the Honor Code in this assignment.
